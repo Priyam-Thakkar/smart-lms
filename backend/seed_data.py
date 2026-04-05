@@ -8,8 +8,12 @@ import bcrypt
 import motor.motor_asyncio
 from datetime import datetime
 
-MONGO_URL = "mongodb://localhost:27017"
-DB_NAME = "lms_db"
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
+MONGO_URL = os.getenv("MONGO_URL", "mongodb+srv://admin:123@cluster0.mmr5dy6.mongodb.net/?appName=Cluster0")
+DB_NAME = os.getenv("DB_NAME", "lms_db")
 
 
 def hash_pw(password: str) -> str:

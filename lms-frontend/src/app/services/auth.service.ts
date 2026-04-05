@@ -6,7 +6,7 @@ import { AuthResponse, LoginRequest, User } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'http://localhost:8000/api/auth';
+  private apiUrl = 'https://smart-lms-backend-8gn1.onrender.com/api/auth';
 
   constructor(private http: HttpClient, private router: Router) {}
 

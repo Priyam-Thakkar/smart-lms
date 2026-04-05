@@ -1,0 +1,9 @@
+{
+  "outputDirectory": "dist/lms-frontend/browser",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

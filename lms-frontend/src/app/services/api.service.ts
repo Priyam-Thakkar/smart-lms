@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private base = 'http://localhost:8000/api';
+  private base = 'https://smart-lms-backend-8gn1.onrender.com/api';
 
   constructor(private http: HttpClient) {}
 
