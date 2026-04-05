@@ -1,0 +1,54 @@
+<div class="page-header">
+  <div><h1>🎫 Support Tickets</h1><p>Manage customer support requests</p></div>
+</div>
+<div *ngIf="success" class="alert alert-success">{{ success }}</div>
+
+<div class="table-wrapper">
+  <div *ngIf="loading" style="text-align: center; padding: 40px; color: #64748B;">Loading tickets...</div>
+  <table *ngIf="!loading">
+    <thead>
+      <tr><th>Ticket ID</th><th>Issue Type</th><th>Priority</th><th>Status</th><th>Created</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let t of tickets">
+        <td><strong style="color: #2563EB;">{{ t.ticket_id }}</strong></td>
+        <td>{{ t.issue_type }}</td>
+        <td><span class="badge" [class]="'badge-' + getPriorityClass(t.priority)">{{ t.priority }}</span></td>
+        <td><span class="badge" [class]="'badge-' + getStatusClass(t.status)">{{ t.status }}</span></td>
+        <td style="font-size: 12px; color: #64748B;">{{ t.created_at | date:'dd MMM yyyy' }}</td>
+        <td><button class="btn btn-sm" style="background: #EFF6FF; color: #2563EB; border: none;" (click)="openTicket(t)">View & Update</button></td>
+      </tr>
+      <tr *ngIf="tickets.length === 0"><td colspan="6" style="text-align: center; color: #94A3B8; padding: 24px;">No tickets yet</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Update Modal -->
+<div class="modal-overlay" *ngIf="selectedTicket" (click)="selectedTicket = null">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>🎫 {{ selectedTicket.ticket_id }}</h3>
+      <button (click)="selectedTicket = null" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #64748B;">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="card" style="padding: 12px; margin-bottom: 16px; background: #F8FAFF;">
+        <div style="font-size: 13px; color: #64748B; margin-bottom: 4px;"><strong>Issue:</strong> {{ selectedTicket.issue_type }}</div>
+        <div style="font-size: 13px; color: #374151;">{{ selectedTicket.description }}</div>
+      </div>
+      <div class="form-group">
+        <label>Update Status</label>
+        <select [(ngModel)]="newStatus">
+          <option>Open</option><option>In Progress</option><option>Resolved</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Admin Notes</label>
+        <textarea [(ngModel)]="adminNotes" placeholder="Add resolution notes..." style="min-height: 80px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" (click)="selectedTicket = null">Cancel</button>
+      <button class="btn btn-primary" (click)="updateTicket()">💾 Update Ticket</button>
+    </div>
+  </div>
+</div>

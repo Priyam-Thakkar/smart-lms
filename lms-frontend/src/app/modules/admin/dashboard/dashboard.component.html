@@ -1,0 +1,86 @@
+<div class="page-header">
+  <div>
+    <h1>📊 Dashboard</h1>
+    <p>Welcome back! Here's what's happening with your logistics.</p>
+  </div>
+</div>
+
+<div *ngIf="loading" style="text-align: center; padding: 40px; color: #64748B;">Loading dashboard...</div>
+
+<!-- Stats Grid -->
+<div class="grid grid-4" style="margin-bottom: 24px;" *ngIf="!loading">
+  <div class="stat-card">
+    <div class="stat-icon">📦</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ stats.total_parcels || 0 }}</div>
+      <div class="stat-label">Total Parcels</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background: rgba(22,163,74,0.1); color: #16A34A;">🚴</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ stats.total_agents || 0 }}</div>
+      <div class="stat-label">Total Agents</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: #F59E0B;">👥</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ stats.total_customers || 0 }}</div>
+      <div class="stat-label">Customers</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background: rgba(220,38,38,0.1); color: #DC2626;">🎫</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ stats.open_tickets || 0 }}</div>
+      <div class="stat-label">Open Tickets</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-2" *ngIf="!loading">
+  <!-- Status Distribution -->
+  <div class="card">
+    <h3 style="font-size: 15px; font-weight: 700; color: #1B2A4A; margin-bottom: 16px;">📈 Parcel Status Distribution</h3>
+    <div *ngFor="let item of statusDist" style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+      <div style="min-width: 120px; font-size: 13px; font-weight: 500; color: #374151;">{{ item.status }}</div>
+      <div style="flex: 1; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+        <div [style.width.%]="(item.count / stats.total_parcels) * 100" style="height: 100%; background: #2563EB; border-radius: 4px; transition: width 0.6s;"></div>
+      </div>
+      <div style="min-width: 30px; text-align: right; font-size: 13px; font-weight: 700; color: #1B2A4A;">{{ item.count }}</div>
+    </div>
+    <div *ngIf="statusDist.length === 0" style="text-align: center; color: #94A3B8; padding: 20px;">No parcel data yet</div>
+  </div>
+
+  <!-- Recent Parcels -->
+  <div class="card">
+    <h3 style="font-size: 15px; font-weight: 700; color: #1B2A4A; margin-bottom: 16px;">📦 Recent Parcels</h3>
+    <div *ngFor="let p of recentParcels" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #E2E8F0;">
+      <div>
+        <div style="font-size: 13px; font-weight: 600; color: #111827;">{{ p.tracking_id }}</div>
+        <div style="font-size: 12px; color: #64748B;">{{ p.receiver_name }}</div>
+      </div>
+      <span class="badge" [class]="'badge-' + getStatusClass(p.status)">{{ p.status }}</span>
+    </div>
+    <div *ngIf="recentParcels.length === 0" style="text-align: center; color: #94A3B8; padding: 20px;">No recent parcels</div>
+  </div>
+</div>
+
+<!-- Summary bottom cards -->
+<div class="grid grid-2" style="margin-top: 20px;" *ngIf="!loading">
+  <div class="card" style="display: flex; align-items: center; gap: 16px;">
+    <div style="font-size: 32px;">🚀</div>
+    <div>
+      <div style="font-size: 22px; font-weight: 800; color: #1B2A4A;">{{ stats.pending_dispatches || 0 }}</div>
+      <div style="font-size: 13px; color: #64748B;">Pending Dispatches</div>
+    </div>
+  </div>
+  <div class="card" style="display: flex; align-items: center; gap: 16px; cursor: pointer;" routerLink="/admin/tickets">
+    <div style="font-size: 32px;">🎫</div>
+    <div>
+      <div style="font-size: 22px; font-weight: 800; color: #1B2A4A;">{{ stats.open_tickets || 0 }}</div>
+      <div style="font-size: 13px; color: #64748B;">Tickets Need Attention</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,23 @@
+<div class="page-header">
+  <div><h1>🔔 Notifications</h1><p>All your system notifications</p></div>
+  <button class="btn btn-outline btn-sm" (click)="markAllRead()" *ngIf="unreadCount > 0">✓ Mark all read</button>
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden;">
+  <div *ngIf="loading" style="text-align: center; padding: 40px; color: #64748B;">Loading notifications...</div>
+  <div *ngIf="!loading && notifications.length === 0" style="text-align: center; padding: 40px; color: #94A3B8;">
+    <div style="font-size: 48px; margin-bottom: 12px;">🔔</div>
+    <div style="font-size: 16px; font-weight: 600; color: #64748B;">No notifications yet</div>
+  </div>
+  <div *ngFor="let n of notifications" style="display: flex; align-items: flex-start; gap: 14px; padding: 16px 20px; border-bottom: 1px solid #E2E8F0; cursor: pointer; transition: background 0.15s;" [style.background]="n.is_read ? 'white' : '#EFF6FF'" (click)="markRead(n)">
+    <div style="font-size: 22px; flex-shrink: 0;">{{ getIcon(n.type) }}</div>
+    <div style="flex: 1;">
+      <div style="font-size: 14px; color: #111827;" [style.fontWeight]="n.is_read ? '400' : '600'">{{ n.message }}</div>
+      <div style="font-size: 12px; color: #64748B; margin-top: 4px;">{{ getTimeAgo(n.created_at) }}</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span *ngIf="!n.is_read" style="width: 8px; height: 8px; border-radius: 50%; background: #2563EB; flex-shrink: 0;"></span>
+      <button (click)="delete(n.id); $event.stopPropagation()" style="background: none; border: none; cursor: pointer; color: #94A3B8; font-size: 16px; padding: 4px;">✕</button>
+    </div>
+  </div>
+</div>

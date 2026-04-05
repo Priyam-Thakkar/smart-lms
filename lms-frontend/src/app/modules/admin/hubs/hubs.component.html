@@ -1,0 +1,55 @@
+<div class="page-header">
+  <div><h1>🏭 Hub Management</h1><p>Manage logistics hubs and warehouses</p></div>
+  <button class="btn btn-primary" (click)="openCreate()">+ Add Hub</button>
+</div>
+<div *ngIf="success" class="alert alert-success">{{ success }}</div>
+
+<div class="grid grid-3">
+  <div *ngFor="let h of hubs" class="card">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+      <div>
+        <div style="font-size: 16px; font-weight: 700; color: #1B2A4A;">{{ h.hub_name }}</div>
+        <div class="badge badge-blue" style="margin-top: 4px;">{{ h.hub_code }}</div>
+      </div>
+      <div style="display: flex; gap: 6px;">
+        <button class="btn btn-sm" style="background: #EFF6FF; color: #2563EB; border: none;" (click)="openEdit(h)">✏️</button>
+        <button class="btn btn-danger btn-sm" (click)="delete(h.id)">🗑️</button>
+      </div>
+    </div>
+    <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #64748B;">
+      <div>📍 {{ h.city }}</div>
+      <div>🏠 {{ h.address }}</div>
+      <div>👤 {{ h.contact_person }} — {{ h.phone }}</div>
+      <div>📊 Capacity: {{ h.capacity }} units</div>
+    </div>
+  </div>
+  <div *ngIf="hubs.length === 0 && !loading" class="card" style="text-align: center; color: #94A3B8; padding: 40px; grid-column: 1/-1;">
+    No hubs created yet. Click "+ Add Hub" to start.
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" *ngIf="showModal" (click)="showModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ editMode ? '✏️ Edit Hub' : '🏭 Add New Hub' }}</h3>
+      <button (click)="showModal = false" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #64748B;">✕</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+      <div class="grid grid-2">
+        <div class="form-group"><label>Hub Name *</label><input [(ngModel)]="form.hub_name" placeholder="Hub name" /></div>
+        <div class="form-group"><label>Hub Code *</label><input [(ngModel)]="form.hub_code" placeholder="e.g. MUM-01" /></div>
+        <div class="form-group"><label>City *</label><input [(ngModel)]="form.city" placeholder="City" /></div>
+        <div class="form-group"><label>Capacity</label><input type="number" [(ngModel)]="form.capacity" /></div>
+        <div class="form-group"><label>Contact Person</label><input [(ngModel)]="form.contact_person" /></div>
+        <div class="form-group"><label>Phone</label><input [(ngModel)]="form.phone" /></div>
+      </div>
+      <div class="form-group"><label>Address</label><textarea [(ngModel)]="form.address" style="min-height: 60px;"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" (click)="showModal = false">Cancel</button>
+      <button class="btn btn-primary" (click)="save()">{{ editMode ? '💾 Update' : '✅ Add Hub' }}</button>
+    </div>
+  </div>
+</div>

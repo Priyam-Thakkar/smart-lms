@@ -1,0 +1,69 @@
+<div class="page-header">
+  <div><h1>📍 Track Your Parcel</h1><p>Enter your tracking ID to view real-time delivery status</p></div>
+</div>
+
+<div class="card" style="margin-bottom: 24px;">
+  <div style="display: flex; gap: 12px; align-items: flex-end;">
+    <div class="form-group" style="flex: 1; margin: 0;">
+      <label>Tracking ID</label>
+      <input [(ngModel)]="trackingId" placeholder="e.g. LMS-2025-12345" (keyup.enter)="track()" style="font-family: monospace; font-size: 16px; letter-spacing: 1px;" />
+    </div>
+    <button class="btn btn-primary" (click)="track()" [disabled]="loading" style="padding: 10px 24px;">
+      {{ loading ? '🔍 Searching...' : '🔍 Track' }}
+    </button>
+  </div>
+  <div *ngIf="error" class="alert alert-danger" style="margin-top: 12px; margin-bottom: 0;">{{ error }}</div>
+</div>
+
+<div *ngIf="parcel" class="grid grid-2">
+  <!-- Parcel Details + Billing -->
+  <div>
+    <div class="card" style="margin-bottom: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+        <div>
+          <div style="font-size: 18px; font-weight: 800; color: #2563EB; font-family: monospace;">{{ parcel.tracking_id }}</div>
+          <div style="font-size: 12px; color: #64748B; margin-top: 4px;">Parcel Details</div>
+        </div>
+        <span class="badge" [class]="'badge-' + getStatusClass(parcel.status)" style="font-size: 12px; padding: 5px 12px;">{{ parcel.status }}</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+        <div style="display: flex; justify-content: space-between;"><span style="color: #64748B;">Sender</span><span style="font-weight: 500;">{{ parcel.sender_name }}</span></div>
+        <div style="display: flex; justify-content: space-between;"><span style="color: #64748B;">Receiver</span><span style="font-weight: 500;">{{ parcel.receiver_name }}</span></div>
+        <div style="display: flex; justify-content: space-between;"><span style="color: #64748B;">Delivery Address</span><span style="font-weight: 500; text-align: right; max-width: 60%;">{{ parcel.receiver_address }}</span></div>
+        <div style="display: flex; justify-content: space-between;"><span style="color: #64748B;">Weight</span><span style="font-weight: 500;">{{ parcel.weight }} kg</span></div>
+        <div style="display: flex; justify-content: space-between;"><span style="color: #64748B;">Type</span><span style="font-weight: 500;">{{ parcel.parcel_type }}</span></div>
+      </div>
+    </div>
+
+    <!-- Billing -->
+    <div *ngIf="billing" class="card">
+      <h3 style="font-size: 14px; font-weight: 700; color: #1B2A4A; margin-bottom: 12px;">💳 Invoice Details</h3>
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+        <div style="display: flex; justify-content: space-between;"><span style="color: #64748B;">Invoice No</span><span style="font-weight: 600; font-family: monospace; color: #2563EB;">{{ billing.invoice_number }}</span></div>
+        <div style="display: flex; justify-content: space-between;"><span style="color: #64748B;">Amount</span><strong style="font-size: 16px;">₹{{ billing.amount }}</strong></div>
+        <div style="display: flex; justify-content: space-between;"><span style="color: #64748B;">Payment</span>
+          <span class="badge" [class]="billing.payment_status === 'Paid' ? 'badge-success' : 'badge-danger'">{{ billing.payment_status }}</span>
+        </div>
+      </div>
+      <button class="btn btn-primary" (click)="downloadPDF()" style="width: 100%; justify-content: center; margin-top: 16px;">
+        📥 Download Invoice PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Status Timeline -->
+  <div class="card">
+    <h3 style="font-size: 14px; font-weight: 700; color: #1B2A4A; margin-bottom: 16px;">📅 Delivery Timeline</h3>
+    <div class="timeline">
+      <div *ngFor="let h of parcel.status_history?.slice().reverse()" class="timeline-item">
+        <div class="timeline-status">{{ h.status }}</div>
+        <div class="timeline-time">{{ h.timestamp | date:'dd MMM yyyy, h:mm a' }}</div>
+        <div class="timeline-by">Updated by {{ h.updated_by }}</div>
+      </div>
+    </div>
+    <div *ngIf="parcel.proof_of_delivery" style="margin-top: 16px; padding: 12px; background: #F0FDF4; border-radius: 8px; border: 1px solid #86EFAC;">
+      <div style="font-weight: 600; color: #16A34A; margin-bottom: 8px;">✅ Delivered — Proof of Delivery</div>
+      <img [src]="'http://localhost:8000' + parcel.proof_of_delivery.image_url" style="max-width: 100%; border-radius: 6px; max-height: 200px;" />
+    </div>
+  </div>
+</div>

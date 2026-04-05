@@ -1,0 +1,39 @@
+<div class="page-header">
+  <div><h1>📊 Agent Dashboard</h1><p>Your delivery overview for today</p></div>
+</div>
+
+<div class="grid grid-3" style="margin-bottom: 24px;">
+  <div class="stat-card">
+    <div class="stat-icon">📦</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ stats.total_assigned || 0 }}</div>
+      <div class="stat-label">Total Assigned</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background: rgba(22,163,74,0.1); color: #16A34A;">✅</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ stats.delivered || 0 }}</div>
+      <div class="stat-label">Delivered</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: #F59E0B;">⏳</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ stats.pending || 0 }}</div>
+      <div class="stat-label">Pending</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3 style="font-size: 15px; font-weight: 700; color: #1B2A4A; margin-bottom: 16px;">📦 Recent Assigned Parcels</h3>
+  <div *ngFor="let p of recentParcels" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #E2E8F0;">
+    <div>
+      <div style="font-size: 13px; font-weight: 600; color: #2563EB; font-family: monospace;">{{ p.tracking_id }}</div>
+      <div style="font-size: 12px; color: #64748B;">{{ p.receiver_name }} — {{ p.receiver_address }}</div>
+    </div>
+    <span class="badge" [class]="'badge-' + getStatusClass(p.status)">{{ p.status }}</span>
+  </div>
+  <div *ngIf="recentParcels.length === 0" style="text-align: center; color: #94A3B8; padding: 20px;">No parcels assigned yet</div>
+</div>

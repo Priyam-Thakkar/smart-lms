@@ -1,0 +1,62 @@
+<div class="page-header">
+  <div><h1>📦 My Assigned Parcels</h1><p>View your assigned parcels and update delivery status</p></div>
+</div>
+<div *ngIf="success" class="alert alert-success">{{ success }}</div>
+
+<div class="table-wrapper">
+  <div *ngIf="loading" style="text-align: center; padding: 40px; color: #64748B;">Loading your parcels...</div>
+  <table *ngIf="!loading">
+    <thead><tr><th>Tracking ID</th><th>Sender</th><th>Receiver</th><th>Address</th><th>Weight</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let p of parcels">
+        <td><strong style="color: #2563EB; font-family: monospace;">{{ p.tracking_id }}</strong></td>
+        <td>{{ p.sender_name }}</td>
+        <td>{{ p.receiver_name }}<br><small style="color: #64748B;">{{ p.receiver_phone }}</small></td>
+        <td style="font-size: 12px; color: #64748B; max-width: 180px;">{{ p.receiver_address }}</td>
+        <td>{{ p.weight }} kg</td>
+        <td><span class="badge" [class]="'badge-' + getStatusClass(p.status)">{{ p.status }}</span></td>
+        <td><button class="btn btn-sm btn-primary" (click)="openParcel(p)">Update</button></td>
+      </tr>
+      <tr *ngIf="parcels.length === 0"><td colspan="7" style="text-align: center; color: #94A3B8; padding: 24px;">No parcels assigned to you</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Update Modal -->
+<div class="modal-overlay" *ngIf="selectedParcel" (click)="selectedParcel = null">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>📦 {{ selectedParcel.tracking_id }}</h3>
+      <button (click)="selectedParcel = null" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #64748B;">✕</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+      <div class="form-group">
+        <label>Update Status</label>
+        <select [(ngModel)]="newStatus">
+          <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+
+      <!-- Proof of Delivery Upload (show when Delivered) -->
+      <div *ngIf="newStatus === 'Delivered'" style="margin-top: 16px; padding: 16px; background: #F0FDF4; border-radius: 8px; border: 1px dashed #16A34A;">
+        <div style="font-weight: 600; color: #16A34A; margin-bottom: 8px;">📸 Upload Proof of Delivery</div>
+        <input type="file" accept="image/jpeg,image/png" (change)="onFileSelected($event)" style="font-size: 13px;" />
+        <div style="font-size: 11px; color: #64748B; margin-top: 6px;">JPG/PNG only, max 5MB</div>
+        <div *ngIf="proofFile" style="margin-top: 8px; font-size: 12px; color: #16A34A;">✅ {{ proofFile.name }} selected</div>
+      </div>
+
+      <!-- Show existing proof -->
+      <div *ngIf="selectedParcel.proof_of_delivery" style="margin-top: 12px; padding: 12px; background: #F0FDF4; border-radius: 8px;">
+        <div style="font-weight: 600; color: #16A34A; margin-bottom: 6px;">✅ Existing Proof of Delivery</div>
+        <img [src]="'http://localhost:8000' + selectedParcel.proof_of_delivery.image_url" style="max-width: 200px; border-radius: 6px;" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" (click)="selectedParcel = null">Cancel</button>
+      <button class="btn btn-primary" (click)="updateStatus()" [disabled]="uploading">
+        {{ uploading ? '⏳ Uploading...' : '💾 Update Status' }}
+      </button>
+    </div>
+  </div>
+</div>

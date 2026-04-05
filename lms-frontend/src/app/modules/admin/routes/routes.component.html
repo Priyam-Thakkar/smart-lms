@@ -1,0 +1,60 @@
+<div class="page-header">
+  <div><h1>🗺️ Routes Management</h1><p>Manage delivery routes between hubs</p></div>
+  <button class="btn btn-primary" (click)="openCreate()">+ Add Route</button>
+</div>
+<div *ngIf="success" class="alert alert-success">{{ success }}</div>
+
+<div class="table-wrapper">
+  <table>
+    <thead><tr><th>Route Name</th><th>Origin</th><th>Destination</th><th>Distance</th><th>Est. Days</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let r of routes">
+        <td><strong>{{ r.route_name }}</strong></td>
+        <td>{{ getHubName(r.origin_hub_id) }}</td>
+        <td>{{ getHubName(r.destination_hub_id) }}</td>
+        <td>{{ r.distance_km }} km</td>
+        <td>{{ r.estimated_days }} days</td>
+        <td>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn btn-sm" style="background: #EFF6FF; color: #2563EB; border: none;" (click)="openEdit(r)">✏️</button>
+            <button class="btn btn-danger btn-sm" (click)="delete(r.id)">🗑️</button>
+          </div>
+        </td>
+      </tr>
+      <tr *ngIf="routes.length === 0"><td colspan="6" style="text-align: center; color: #94A3B8; padding: 24px;">No routes yet</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal" (click)="showModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ editMode ? '✏️ Edit Route' : '🗺️ Add Route' }}</h3>
+      <button (click)="showModal = false" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #64748B;">✕</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+      <div class="form-group"><label>Route Name</label><input [(ngModel)]="form.route_name" placeholder="e.g. Mumbai to Delhi" /></div>
+      <div class="grid grid-2">
+        <div class="form-group"><label>Origin Hub</label>
+          <select [(ngModel)]="form.origin_hub_id">
+            <option value="">Select hub</option>
+            <option *ngFor="let h of hubs" [value]="h.id">{{ h.hub_name }}</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Destination Hub</label>
+          <select [(ngModel)]="form.destination_hub_id">
+            <option value="">Select hub</option>
+            <option *ngFor="let h of hubs" [value]="h.id">{{ h.hub_name }}</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Distance (km)</label><input type="number" [(ngModel)]="form.distance_km" /></div>
+        <div class="form-group"><label>Estimated Days</label><input type="number" [(ngModel)]="form.estimated_days" /></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" (click)="showModal = false">Cancel</button>
+      <button class="btn btn-primary" (click)="save()">{{ editMode ? '💾 Update' : '✅ Add Route' }}</button>
+    </div>
+  </div>
+</div>

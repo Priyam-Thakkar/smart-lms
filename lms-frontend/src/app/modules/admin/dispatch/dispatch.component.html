@@ -1,0 +1,78 @@
+<div class="page-header">
+  <div><h1>🚀 Dispatch Management</h1><p>Assign parcels to agents and routes</p></div>
+  <button class="btn btn-primary" (click)="openCreate()">+ Create Dispatch</button>
+</div>
+<div *ngIf="success" class="alert alert-success">{{ success }}</div>
+
+<div class="table-wrapper">
+  <div *ngIf="loading" style="text-align: center; padding: 40px; color: #64748B;">Loading dispatches...</div>
+  <table *ngIf="!loading">
+    <thead><tr><th>Parcel ID</th><th>Agent ID</th><th>Hub ID</th><th>Dispatch Date</th><th>Expected</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let d of dispatches">
+        <td style="font-family: monospace; font-size: 12px;">{{ d.parcel_id }}</td>
+        <td style="font-family: monospace; font-size: 12px;">{{ d.agent_id }}</td>
+        <td style="font-family: monospace; font-size: 12px;">{{ d.hub_id }}</td>
+        <td style="font-size: 12px; color: #64748B;">{{ d.dispatch_date | date:'dd MMM' }}</td>
+        <td style="font-size: 12px; color: #64748B;">{{ d.expected_delivery | date:'dd MMM' }}</td>
+        <td><span class="badge badge-blue">{{ d.status || 'Dispatched' }}</span></td>
+        <td>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn btn-sm" style="background: #EFF6FF; color: #2563EB; border: none;" (click)="openEdit(d)">✏️</button>
+            <button class="btn btn-danger btn-sm" (click)="delete(d.id)">🗑️</button>
+          </div>
+        </td>
+      </tr>
+      <tr *ngIf="dispatches.length === 0"><td colspan="7" style="text-align: center; color: #94A3B8; padding: 24px;">No dispatches yet</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal" (click)="showModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ editMode ? '✏️ Edit Dispatch' : '🚀 Create Dispatch' }}</h3>
+      <button (click)="showModal = false" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #64748B;">✕</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+      <div class="form-group">
+        <label>Parcel</label>
+        <select [(ngModel)]="form.parcel_id">
+          <option value="">Select Parcel</option>
+          <option *ngFor="let p of parcels" [value]="p.id">{{ p.tracking_id }} - {{ p.receiver_name }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Agent</label>
+        <select [(ngModel)]="form.agent_id">
+          <option value="">Select Agent</option>
+          <option *ngFor="let a of agents" [value]="a.id">{{ a.name }}</option>
+        </select>
+      </div>
+      <div class="grid grid-2">
+        <div class="form-group">
+          <label>Hub</label>
+          <select [(ngModel)]="form.hub_id">
+            <option value="">Select Hub</option>
+            <option *ngFor="let h of hubs" [value]="h.id">{{ h.hub_name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Route</label>
+          <select [(ngModel)]="form.route_id">
+            <option value="">Select Route</option>
+            <option *ngFor="let r of routes" [value]="r.id">{{ r.route_name }}</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Dispatch Date</label><input type="datetime-local" [(ngModel)]="form.dispatch_date" /></div>
+        <div class="form-group"><label>Expected Delivery</label><input type="datetime-local" [(ngModel)]="form.expected_delivery" /></div>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea [(ngModel)]="form.notes" style="min-height: 60px;"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" (click)="showModal = false">Cancel</button>
+      <button class="btn btn-primary" (click)="save()">{{ editMode ? '💾 Update' : '✅ Create' }}</button>
+    </div>
+  </div>
+</div>

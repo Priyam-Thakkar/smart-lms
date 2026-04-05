@@ -1,0 +1,93 @@
+<div class="app-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🚚</div>
+      <div>
+        <div class="logo-text">Smart LMS</div>
+        <div class="logo-sub">Admin Panel</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main Menu</div>
+      <div *ngFor="let item of navItems"
+           class="nav-item"
+           [class.active]="isActive(item.route)"
+           (click)="navigate(item.route)">
+        <span class="nav-icon">{{ item.icon }}</span>
+        {{ item.label }}
+      </div>
+
+      <div class="nav-section-label" style="margin-top: 16px;">Account</div>
+      <div *ngFor="let item of bottomItems"
+           class="nav-item"
+           [class.active]="isActive(item.route)"
+           (click)="navigate(item.route)">
+        <span class="nav-icon">{{ item.icon }}</span>
+        {{ item.label }}
+      </div>
+    </nav>
+
+    <div style="padding: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+      <div class="nav-item" (click)="logout()" style="color: rgba(255,255,255,0.6);">
+        <span class="nav-icon">🚪</span> Logout
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <!-- NAVBAR -->
+    <header class="navbar">
+      <div class="navbar-left">
+        <div class="page-title">Admin Dashboard</div>
+      </div>
+      <div class="navbar-right">
+        <!-- Notifications -->
+        <div style="position: relative;">
+          <button class="btn btn-icon" (click)="showNotifPanel = !showNotifPanel" style="position: relative; background: #F4F6FA; border: 1px solid #E2E8F0;">
+            🔔
+            <span *ngIf="unreadCount > 0" style="position: absolute; top: -4px; right: -4px; background: #DC2626; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700;">{{ unreadCount }}</span>
+          </button>
+
+          <!-- Notification Panel -->
+          <div class="notif-panel" *ngIf="showNotifPanel" (clickOutside)="showNotifPanel = false">
+            <div class="notif-header">
+              <span>🔔 Notifications</span>
+              <button class="btn btn-sm" (click)="markAllRead()" style="font-size: 11px; padding: 4px 10px; background: #EFF6FF; color: #2563EB; border: none;">Mark all read</button>
+            </div>
+            <div *ngIf="notifications.length === 0" class="notif-empty">No notifications</div>
+            <div *ngFor="let n of notifications" class="notif-item" [class.unread]="!n.is_read" (click)="n.is_read = true">
+              <div class="notif-icon">{{ getNotifIcon(n.type) }}</div>
+              <div class="notif-content">
+                <div class="notif-message">{{ n.message }}</div>
+                <div class="notif-time">{{ getTimeAgo(n.created_at || '') }}</div>
+              </div>
+              <button (click)="deleteNotif(n.id); $event.stopPropagation()" style="background: none; border: none; color: #94A3B8; cursor: pointer; font-size: 14px;">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile -->
+        <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" (click)="navigate('/admin/profile')">
+          <div *ngIf="user?.profile_pic" style="width: 34px; height: 34px; border-radius: 50%; overflow: hidden; border: 2px solid #2563EB;">
+            <img [src]="'http://localhost:8000' + user.profile_pic" style="width: 100%; height: 100%; object-fit: cover;" />
+          </div>
+          <div *ngIf="!user?.profile_pic" style="width: 34px; height: 34px; border-radius: 50%; background: #1B2A4A; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 13px;">
+            {{ user?.name?.charAt(0)?.toUpperCase() }}
+          </div>
+          <div>
+            <div style="font-weight: 600; font-size: 13px; color: #111827;">{{ user?.name }}</div>
+            <div style="font-size: 11px; color: #64748B; text-transform: capitalize;">{{ user?.role }}</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <main class="page-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

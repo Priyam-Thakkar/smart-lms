@@ -1,0 +1,58 @@
+<div class="page-header">
+  <div><h1>📈 Reports & Analytics</h1><p>Overview of system performance and revenue</p></div>
+</div>
+
+<div class="grid grid-3" style="margin-bottom: 24px;">
+  <div class="stat-card">
+    <div class="stat-icon">📦</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ parcelStats.total || 0 }}</div>
+      <div class="stat-label">Total Parcels</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background: rgba(22,163,74,0.1); color: #16A34A;">✅</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ parcelStats.delivered || 0 }}</div>
+      <div class="stat-label">Delivered</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: #F59E0B;">⏳</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ parcelStats.pending || 0 }}</div>
+      <div class="stat-label">Pending</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <!-- Revenue -->
+  <div class="card">
+    <h3 style="font-size: 15px; font-weight: 700; color: #1B2A4A; margin-bottom: 16px;">💰 Revenue Overview</h3>
+    <div style="display: flex; gap: 16px; margin-bottom: 16px;">
+      <div style="flex: 1; padding: 16px; background: #F0FDF4; border-radius: 8px; border: 1px solid #86EFAC;">
+        <div style="font-size: 11px; color: #16A34A; font-weight: 600; text-transform: uppercase;">Collected</div>
+        <div style="font-size: 24px; font-weight: 800; color: #16A34A;">₹{{ getTotalRevenue() | number }}</div>
+      </div>
+      <div style="flex: 1; padding: 16px; background: #FEF2F2; border-radius: 8px; border: 1px solid #FCA5A5;">
+        <div style="font-size: 11px; color: #DC2626; font-weight: 600; text-transform: uppercase;">Pending</div>
+        <div style="font-size: 24px; font-weight: 800; color: #DC2626;">₹{{ getPendingRevenue() | number }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delivery Status -->
+  <div class="card">
+    <h3 style="font-size: 15px; font-weight: 700; color: #1B2A4A; margin-bottom: 16px;">📊 Delivery Status Breakdown</h3>
+    <div *ngFor="let d of deliveries" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #E2E8F0;">
+      <span style="font-size: 13px; font-weight: 500; color: #374151;">{{ d.status }}</span>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 100px; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+          <div [style.width.%]="(d.count / parcelStats.total) * 100" style="height: 100%; background: #2563EB; border-radius: 4px;"></div>
+        </div>
+        <span style="font-size: 13px; font-weight: 700; color: #1B2A4A; min-width: 24px; text-align: right;">{{ d.count }}</span>
+      </div>
+    </div>
+  </div>
+</div>

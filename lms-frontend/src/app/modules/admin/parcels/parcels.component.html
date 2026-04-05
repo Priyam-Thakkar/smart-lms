@@ -1,0 +1,135 @@
+<div class="page-header">
+  <div><h1>📦 Parcels Management</h1><p>Create and manage all parcels in the system</p></div>
+  <button class="btn btn-primary" (click)="openCreate()">+ Create Parcel</button>
+</div>
+
+<div *ngIf="success" class="alert alert-success">{{ success }}</div>
+
+<!-- Filters -->
+<div class="card" style="padding: 16px; margin-bottom: 16px;">
+  <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+    <div class="search-bar" style="flex: 1;">
+      <span>🔍</span>
+      <input [(ngModel)]="searchTerm" (ngModelChange)="search()" placeholder="Search by tracking ID, name..." />
+    </div>
+    <select [(ngModel)]="filterStatus" (ngModelChange)="search()" style="padding: 9px 14px; border: 1.5px solid #E2E8F0; border-radius: 6px; font-size: 14px;">
+      <option value="">All Statuses</option>
+      <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+    </select>
+    <button class="btn btn-outline btn-sm" (click)="searchTerm=''; filterStatus=''; search()">Clear</button>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="table-wrapper">
+  <div *ngIf="loading" style="text-align: center; padding: 40px; color: #64748B;">Loading parcels...</div>
+  <table *ngIf="!loading">
+    <thead>
+      <tr>
+        <th>Tracking ID</th>
+        <th>Sender</th>
+        <th>Receiver</th>
+        <th>Weight</th>
+        <th>Price</th>
+        <th>Status</th>
+        <th>Payment</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of filtered">
+        <td><strong style="color: #2563EB; font-family: monospace;">{{ p.tracking_id }}</strong></td>
+        <td>{{ p.sender_name }}<br><small style="color: #64748B;">{{ p.sender_phone }}</small></td>
+        <td>{{ p.receiver_name }}<br><small style="color: #64748B;">{{ p.receiver_phone }}</small></td>
+        <td>{{ p.weight }} kg</td>
+        <td><strong>₹{{ p.price }}</strong></td>
+        <td><span class="badge" [class]="'badge-' + getStatusClass(p.status)">{{ p.status }}</span></td>
+        <td><span class="badge" [class]="p.payment_status === 'Paid' ? 'badge-success' : 'badge-danger'">{{ p.payment_status }}</span></td>
+        <td>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button class="btn btn-outline btn-sm" (click)="viewTracking(p)">📍</button>
+            <button class="btn btn-sm" style="background: #EFF6FF; color: #2563EB; border: none;" (click)="openEdit(p)">✏️</button>
+            <button class="btn btn-danger btn-sm" (click)="delete(p.id)">🗑️</button>
+          </div>
+        </td>
+      </tr>
+      <tr *ngIf="filtered.length === 0"><td colspan="8" style="text-align: center; color: #94A3B8; padding: 24px;">No parcels found</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- CREATE/EDIT MODAL -->
+<div class="modal-overlay" *ngIf="showModal" (click)="showModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ editMode ? '✏️ Edit Parcel' : '📦 Create New Parcel' }}</h3>
+      <button (click)="showModal = false" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #64748B;">✕</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+      <div class="grid grid-2">
+        <div class="form-group"><label>Sender Name *</label><input [(ngModel)]="form.sender_name" placeholder="Sender name" /></div>
+        <div class="form-group"><label>Sender Phone</label><input [(ngModel)]="form.sender_phone" placeholder="Sender phone" /></div>
+        <div class="form-group"><label>Receiver Name *</label><input [(ngModel)]="form.receiver_name" placeholder="Receiver name" /></div>
+        <div class="form-group"><label>Receiver Phone</label><input [(ngModel)]="form.receiver_phone" placeholder="Receiver phone" /></div>
+      </div>
+      <div class="form-group"><label>Receiver Address *</label><textarea [(ngModel)]="form.receiver_address" placeholder="Full delivery address" style="min-height: 60px;"></textarea></div>
+      <div class="grid grid-3">
+        <div class="form-group"><label>Weight (kg)</label><input type="number" [(ngModel)]="form.weight" /></div>
+        <div class="form-group"><label>Parcel Type</label>
+          <select [(ngModel)]="form.parcel_type">
+            <option>Standard</option><option>Fragile</option><option>Express</option><option>Heavy</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Price (₹)</label><input type="number" [(ngModel)]="form.price" /></div>
+      </div>
+      <div class="grid grid-2">
+        <div class="form-group"><label>Payment Status</label>
+          <select [(ngModel)]="form.payment_status"><option>Unpaid</option><option>Paid</option></select>
+        </div>
+        <div class="form-group"><label>Description</label><input [(ngModel)]="form.description" placeholder="Optional description" /></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" (click)="showModal = false">Cancel</button>
+      <button class="btn btn-primary" (click)="save()">{{ editMode ? '💾 Update' : '✅ Create Parcel' }}</button>
+    </div>
+  </div>
+</div>
+
+<!-- TRACKING MODAL -->
+<div class="modal-overlay" *ngIf="showTrackingModal" (click)="showTrackingModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>📍 Tracking: {{ selectedParcel?.tracking_id }}</h3>
+      <button (click)="showTrackingModal = false" style="background: none; border: none; font-size: 20px; cursor: pointer;">✕</button>
+    </div>
+    <div class="modal-body" *ngIf="selectedParcel">
+      <div style="display: flex; gap: 16px; margin-bottom: 16px;">
+        <div class="card" style="flex: 1; padding: 12px;">
+          <div style="font-size: 11px; color: #64748B; text-transform: uppercase; font-weight: 600;">Sender</div>
+          <div style="font-weight: 600; margin-top: 4px;">{{ selectedParcel.sender_name }}</div>
+          <div style="font-size: 12px; color: #64748B;">{{ selectedParcel.sender_phone }}</div>
+        </div>
+        <div class="card" style="flex: 1; padding: 12px;">
+          <div style="font-size: 11px; color: #64748B; text-transform: uppercase; font-weight: 600;">Receiver</div>
+          <div style="font-weight: 600; margin-top: 4px;">{{ selectedParcel.receiver_name }}</div>
+          <div style="font-size: 12px; color: #64748B;">{{ selectedParcel.receiver_address }}</div>
+        </div>
+      </div>
+      <h4 style="margin-bottom: 12px; font-size: 14px; color: #1B2A4A;">Status History</h4>
+      <div class="timeline">
+        <div *ngFor="let h of selectedParcel.status_history?.slice().reverse()" class="timeline-item">
+          <div class="timeline-status">{{ h.status }}</div>
+          <div class="timeline-time">{{ h.timestamp | date:'dd MMM yyyy, h:mm a' }}</div>
+          <div class="timeline-by">by {{ h.updated_by }}</div>
+        </div>
+      </div>
+      <!-- Proof of Delivery -->
+      <div *ngIf="selectedParcel.proof_of_delivery" style="margin-top: 16px; padding: 12px; background: #F0FDF4; border-radius: 8px; border: 1px solid #86EFAC;">
+        <div style="font-weight: 600; color: #16A34A; margin-bottom: 8px;">✅ Proof of Delivery Uploaded</div>
+        <img [src]="'http://localhost:8000' + selectedParcel.proof_of_delivery.image_url" style="max-width: 100%; border-radius: 6px; max-height: 300px; object-fit: contain;" />
+      </div>
+    </div>
+  </div>
+</div>
